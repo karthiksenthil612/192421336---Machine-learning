@@ -1,0 +1,79 @@
+import numpy as np
+
+# -----------------------------
+# Sigmoid Activation Function
+# -----------------------------
+def sigmoid(x):
+    return 1 / (1 + np.exp(-x))
+
+def sigmoid_derivative(x):
+    return x * (1 - x)
+
+
+# -----------------------------
+# Training Data (XOR Problem)
+# -----------------------------
+X = np.array([
+    [0, 0],
+    [0, 1],
+    [1, 0],
+    [1, 1]
+])
+
+y = np.array([[0], [1], [1], [0]])
+
+
+# -----------------------------
+# Initialize Weights & Biases
+# -----------------------------
+np.random.seed(1)
+
+input_neurons = 2
+hidden_neurons = 2
+output_neurons = 1
+
+W1 = np.random.rand(input_neurons, hidden_neurons)
+b1 = np.random.rand(hidden_neurons)
+
+W2 = np.random.rand(hidden_neurons, output_neurons)
+b2 = np.random.rand(output_neurons)
+
+learning_rate = 0.5
+epochs = 10000
+
+
+# -----------------------------
+# Training using Backpropagation
+# -----------------------------
+for _ in range(epochs):
+
+    # Forward Propagation
+    hidden_input = np.dot(X, W1) + b1
+    hidden_output = sigmoid(hidden_input)
+
+    final_input = np.dot(hidden_output, W2) + b2
+    final_output = sigmoid(final_input)
+
+    # Error
+    error = y - final_output
+
+    # Backpropagation
+    d_output = error * sigmoid_derivative(final_output)
+    d_hidden = d_output.dot(W2.T) * sigmoid_derivative(hidden_output)
+
+    # Update Weights & Biases
+    W2 += hidden_output.T.dot(d_output) * learning_rate
+    b2 += np.sum(d_output, axis=0) * learning_rate
+
+    W1 += X.T.dot(d_hidden) * learning_rate
+    b1 += np.sum(d_hidden, axis=0) * learning_rate
+
+
+# -----------------------------
+# Testing the Network
+# -----------------------------
+print("Testing ANN using Backpropagation:\n")
+for i in range(len(X)):
+    hidden_layer = sigmoid(np.dot(X[i], W1) + b1)
+    output_layer = sigmoid(np.dot(hidden_layer, W2) + b2)
+    print(f"Input: {X[i]}  Output: {output_layer.round(3)}")
